@@ -1,5 +1,0 @@
-Operating stack:
-  Immediate values get pushed onto this stack, and operators act on the top of it
-
-Memory:
-  Range of memory that objects get allocated to

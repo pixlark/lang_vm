@@ -1,3 +1,27 @@
 Operating stack:
-  Immediate values get pushed onto this stack, and operators act on the top of it
 
+  Immediate values get pushed onto this stack, and operators act on
+  the top of it
+
+object memory:
+
+  Contigous area of pre-allocated memory that objects get linearly
+  allocated to. Using this instead of malloc() because, although it
+  has far worse memory usage, it has cache coherency. When we need to
+  fetch objects from memory, that user-specific memory gets placed
+  into cache correctly. If we malloc() everything, user memory will
+  get intermingled with interpreter memory. In the future, we may go
+  with that anyway, or more likely apply some sort of memory
+  allocation library to our contigous memory.
+
+variables and binding:
+
+  There is a global symbol table, which holds function and global
+  variable bindings. There is also a stack that holds local symbol
+  tables. When a function is entered, a new symbol table is pushed
+  onto the stack to hold it's variables. Using `load` to load a symbol
+  onto the operator stack looks first at the table on top of the local
+  stack, then at the global table.
+
+  `allocg name type` allocates a new global variable, and `allocl name
+  type` allocates a new local variable.
