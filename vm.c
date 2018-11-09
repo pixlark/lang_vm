@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 #include "error.h"
+#include "print_routines.h"
 #include "stretchy_buffer.h"
 #include "table.h"
 #include "types.h"
@@ -26,14 +27,35 @@ VM * create_vm(Instr * source, size_t memory_capacity)
 
 Object * allocate_object(VM * vm)
 {
+	Mem_Piece * memory = (Mem_Piece*) vm->memory;
 	size_t index = 0;
-	while (!((Mem_Piece*) vm->memory)[index].allocated) {
+	while (memory[index].allocated) {
 		index++;
 		if (index >= vm->memory_capacity) {
 			internal_error("Ran out of memory to allocate objects");
 		}
 	}
-	return &(((Mem_Piece*) vm->memory)[index].object);
+	memory[index].allocated = true;
+	return &(memory[index].object);
+}
+
+void print_debug_memory(VM * vm)
+{
+	Mem_Piece * memory = ((Mem_Piece*) vm->memory);
+	bool anything_printed = false;
+	for (int i = 0; i < vm->memory_capacity; i++) {
+		if (memory[i].allocated) {
+			anything_printed = true;
+			printf("[@%p, %u] %s : ",
+				&(memory[i].object),
+				i,
+				obj_type_str(memory[i].object.type));
+			print_object(&(memory[i].object));
+		}
+	}
+	if (!anything_printed) {
+		printf("Nothing allocated\n");
+	}
 }
 
 bool vm_step(VM * vm)
@@ -53,13 +75,30 @@ bool vm_step(VM * vm)
 	return true;
 }
 
-Instr test_source[] = {
-	(Instr) { INSTR_HALT },
-};
+Instr allocg(char * symbol, enum Object type)
+{
+	Instr instr;
+	instr.instr = INSTR_ALLOCG;
+	instr.op_0 = (union Operand) { .symbol = symbol };
+	instr.op_1 = (union Operand) { .obj_type = type };
+	return instr;
+}
 
 int main()
 {
+	Instr test_source[] = {
+		allocg("test", OBJ_INT),
+		(Instr) { INSTR_HALT },
+	};
 	VM * vm = create_vm(test_source, 128);
-	while (vm_step(vm));
+	do {
+		printf("Memory: \n");
+		print_debug_memory(vm);
+		printf("\n");
+		printf("Instruction: ");
+		print_instr(vm->source[vm->prog_counter]);
+	} while (vm_step(vm));
+	printf("Final memory state:\n");
+	print_debug_memory(vm);
 	return 0;
 }

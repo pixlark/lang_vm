@@ -1,7 +1,11 @@
 #pragma once
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+
 enum Object {
-	OBJ_INTEGER,
+	OBJ_INT,
 };
 
 typedef struct {
