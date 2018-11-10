@@ -13,7 +13,7 @@ Symbol_Table * table_create(size_t size)
 	return table;
 }
 
-void table_add_symbol(Symbol_Table * table, char * key, Object * value)
+void table_add_symbol(Symbol_Table * table, char * key, Value value)
 {
 	int position = table_hash(key, table->size);
 	int counter = 0;
@@ -37,7 +37,7 @@ bool table_symbol_exists(Symbol_Table * table, char * key)
 	return false;
 }
 
-Object * table_get_symbol(Symbol_Table * table, char* key)
+Value table_get_symbol(Symbol_Table * table, char* key)
 {
 	assert(table_symbol_exists(table, key));
 	int position = table_hash(key, table->size);

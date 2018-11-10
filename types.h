@@ -5,19 +5,37 @@
 #include <stdint.h>
 
 enum Object {
-	OBJ_INT,
+	OBJ_STRING,
 };
+
+typedef struct {
+	size_t len;
+	const char * string;
+} String;
 
 typedef struct {
 	enum Object type;
 	union {
-		int _int;
+		String string;
 	};
 } Object;
 
+enum Value {
+	VAL_INT,
+	VAL_OBJECT,
+};
+
+typedef struct {
+	enum Value type;
+	union {
+		int64_t _int;
+		Object * obj;
+	};
+} Value;
+
 typedef struct {
 	char ** keys;
-	Object ** values;
+	Value * values;
 	bool * taken;
 	size_t size;
 } Symbol_Table;
@@ -28,12 +46,19 @@ enum Instr {
 	INSTR_ALLOCG,
 	/* op_0: symbol
 	   op_1: obj_type */
+	INSTR_LOAD,
+	/* op_0: symbol */
+	INSTR_PUSHINT,
+	/* op_0: int */
 };
 
 union Operand {
-	Object * obj;
+	Value value;
+	enum Value val_type;
+	Object obj;
 	enum Object obj_type;
 	char * symbol;
+	int64_t im_int;
 };
 
 typedef struct {
@@ -46,7 +71,7 @@ typedef struct {
 typedef struct {
 	Instr * source;
 	size_t prog_counter;
-	Object * stack;
+	Value * stack;
 	size_t memory_capacity;
 	void * memory;
 	Symbol_Table * global_table;

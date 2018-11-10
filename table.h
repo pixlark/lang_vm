@@ -7,8 +7,8 @@
 #include "types.h"
 
 Symbol_Table * table_create(size_t size);
-void table_add_symbol(Symbol_Table * table, char * key, Object * object);
+void table_add_symbol(Symbol_Table * table, char * key, Value value);
 bool table_symbol_exists(Symbol_Table * table, char * key);
-Object * table_get_symbol(Symbol_Table * table, char * key);
+Value table_get_symbol(Symbol_Table * table, char * key);
 
 uintptr_t table_hash(char* key, size_t size);
