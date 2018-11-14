@@ -25,3 +25,8 @@ variables and binding:
 
   `allocg name type` allocates a new global variable, and `allocl name
   type` allocates a new local variable.
+
+function returning:
+
+  There is a call stack, which holds pointers into the code for
+  returns from functions.

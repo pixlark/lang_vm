@@ -51,6 +51,36 @@ Object * allocate_object(VM * vm, enum Object type)
 	return object;
 }
 
+#define BIN_OP(__op__) {						\
+		eassert(sb_count(vm->stack) >= 2,		\
+			"Not enough arguments on stack.");	\
+		Value b = sb_pop(vm->stack);			\
+		typeassert(b.type, VAL_INT);			\
+		Value a = sb_pop(vm->stack);			\
+		typeassert(a.type, VAL_INT);			\
+		Value c; c.type = VAL_INT;				\
+		c._int = a._int __op__ b._int;			\
+		sb_push(vm->stack, c);					\
+	}
+
+void vm_operation(VM * vm, enum Oper oper)
+{
+	switch (oper) {
+	case OPER_ADD:
+		BIN_OP(+);
+		break;
+	case OPER_SUB:
+		BIN_OP(-);
+		break;
+	case OPER_MUL:
+		BIN_OP(*);
+		break;
+	case OPER_DIV:
+		BIN_OP(/);
+		break;
+	}
+}
+
 bool vm_step(VM * vm)
 {
 	Instr instr = vm->source[vm->prog_counter++];
@@ -75,6 +105,9 @@ bool vm_step(VM * vm)
 	case INSTR_PUSHINT: {
 		Value value = (Value) { VAL_INT, ._int = instr.op_0.im_int };
 		sb_push(vm->stack, value);
+	} break;
+	case INSTR_OPER: {
+		vm_operation(vm, instr.op_0.oper);
 	} break;
 	}
 	return true;
@@ -102,6 +135,14 @@ Instr i_pushint(int64_t im_int)
 	Instr instr;
 	instr.instr = INSTR_PUSHINT;
 	instr.op_0 = (union Operand) { .im_int = im_int };
+	return instr;
+}
+
+Instr i_oper(enum Oper oper)
+{
+	Instr instr;
+	instr.instr = INSTR_OPER;
+	instr.op_0 = (union Operand) { .oper = oper };
 	return instr;
 }
 
@@ -135,7 +176,9 @@ int main()
 	Instr test_source[] = {
 		i_allocg("test", OBJ_STRING),
 		i_load("test"),
-		i_pushint(15),
+		i_pushint(24),
+		i_pushint(5),
+		i_oper(OPER_DIV),
 		(Instr) { INSTR_HALT },
 	};
 	VM * vm = create_vm(test_source, 128);

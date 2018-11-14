@@ -40,6 +40,13 @@ typedef struct {
 	size_t size;
 } Symbol_Table;
 
+enum Oper {
+	OPER_ADD,
+	OPER_SUB,
+	OPER_MUL,
+	OPER_DIV,
+};
+
 enum Instr {
 	INSTR_HALT,
 	/* No args */
@@ -50,9 +57,12 @@ enum Instr {
 	/* op_0: symbol */
 	INSTR_PUSHINT,
 	/* op_0: int */
+	INSTR_OPER,
+	/* op_0: operation type */
 };
 
 union Operand {
+	enum Oper oper;
 	Value value;
 	enum Value val_type;
 	Object obj;

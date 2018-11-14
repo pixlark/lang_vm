@@ -11,6 +11,13 @@ const char * val_type_str_a[] = {
 	[VAL_OBJECT] = "object",
 };
 
+const char * oper_type_str_a[] = {
+	[OPER_ADD] = "+",
+	[OPER_SUB] = "-",
+	[OPER_MUL] = "*",
+	[OPER_DIV] = "/",
+};
+
 const char * obj_type_str(enum Object type)
 {
 	return obj_type_str_a[type];
@@ -19,6 +26,11 @@ const char * obj_type_str(enum Object type)
 const char * val_type_str(enum Value type)
 {
 	return val_type_str_a[type];
+}
+
+const char * oper_type_str(enum Oper oper)
+{
+	return oper_type_str_a[oper];
 }
 
 void print_object(Object * object)
@@ -57,6 +69,9 @@ void print_instr(Instr instr)
 		break;
 	case INSTR_PUSHINT:
 		printf("pushint %d\n", instr.op_0.im_int);
+		break;
+	case INSTR_OPER:
+		printf("operator %s\n", oper_type_str(instr.op_0.oper));
 		break;
 	default:
 		printf("some instruction %d (not setup in print_instr)\n", instr.instr);
